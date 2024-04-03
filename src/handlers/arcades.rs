@@ -21,6 +21,7 @@ async fn all(db_pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
     let arcades: Vec<Arcade> = query_as("SELECT * FROM arcqueue.arcades")
         .fetch_all(db_pool.get_ref())
         .await?;
+
     Ok(HttpResponse::Ok().json(arcades))
 }
 
@@ -36,6 +37,7 @@ WHERE SIMILARITY(name, $1) > 0.4
     .bind(&name.name)
     .fetch_all(db_pool.get_ref())
     .await?;
+
     Ok(HttpResponse::Ok().json(arcades))
 }
 
@@ -54,5 +56,6 @@ WHERE assoc_arcade = $1
     .bind(&arcade_id.into_inner())
     .fetch_all(db_pool.get_ref())
     .await?;
+
     Ok(HttpResponse::Ok().json(cabinets))
 }
