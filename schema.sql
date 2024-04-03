@@ -15,13 +15,14 @@ CREATE TABLE arcqueue.cabinets (
 	id		int PRIMARY KEY,
 	game_name	text NOT NULL,
 	name		text NOT NULL,
-	description	text,
-	assoc_arcade	int REFERENCES arcqueue.arcades(id)
+	assoc_arcade	int REFERENCES arcqueue.arcades (id)
 );
 
 -- Players Table
 CREATE TABLE arcqueue.players (
 	position	int,
 	name		text NOT NULL,
-	assoc_cabinet	int REFERENCES arcqueue.cabinets(id)
+	assoc_cabinet	int REFERENCES arcqueue.cabinets (id),
+	UNIQUE (position, assoc_cabinet),
+	UNIQUE (name, assoc_cabinet)
 );

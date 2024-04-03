@@ -4,10 +4,14 @@ use clap::Parser;
 use sqlx::postgres::PgPoolOptions;
 use std::env;
 
-mod arcades;
 mod cli;
 mod error;
 mod ping;
+
+// Routing
+mod handlers;
+
+use handlers::*;
 
 #[actix_web::main]
 async fn main() -> Result<()> {
@@ -27,6 +31,7 @@ async fn main() -> Result<()> {
             .app_data(web::Data::new(pool.clone()))
             .service(ping::ping)
             .service(web::scope("/arcades").configure(arcades::arcades_config))
+            .service(web::scope("/cabinets").configure(cabinets::cabinets_config))
     })
     .bind(("0.0.0.0", 8701))?
     .run()
