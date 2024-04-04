@@ -1,4 +1,4 @@
-use actix_web::{get, web, HttpResponse, Result};
+use actix_web::{get, web, HttpResponse};
 use serde::Deserialize;
 use sqlx::{query_as, PgPool};
 
@@ -12,11 +12,14 @@ struct Name {
 
 /// `GET /arcades/*` Routing
 pub(crate) fn arcades_config(cfg: &mut web::ServiceConfig) {
-    cfg.service(all).service(search).service(cabinets);
+    cfg.service(all)
+        .service(arcade)
+        .service(search)
+        .service(cabinets);
 }
 
 /// Search for all arcades `GET /arcades/all`
-#[get("/all")]
+#[get("all")]
 async fn all(db_pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
     let arcades: Vec<Arcade> = query_as("SELECT * FROM arcqueue.arcades")
         .fetch_all(db_pool.get_ref())
@@ -25,8 +28,27 @@ async fn all(db_pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().json(arcades))
 }
 
+/// Get arcade info with `arcade_id` `GET /arcades/{arcade_id}`
+#[get("{arcade_id}")]
+async fn arcade(
+    arcade_id: web::Path<i32>,
+    db_pool: web::Data<PgPool>,
+) -> Result<HttpResponse, Error> {
+    let arcade: Arcade = query_as(
+        "
+SELECT * FROM arcqueue.arcades
+WHERE id = $1
+        ",
+    )
+    .bind(&arcade_id.into_inner())
+    .fetch_one(db_pool.get_ref())
+    .await?;
+
+    Ok(HttpResponse::Ok().json(arcade))
+}
+
 /// Search for arcades by name `GET /arcades/search?name=NAME`
-#[get("/search")]
+#[get("search")]
 async fn search(name: web::Query<Name>, db_pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
     let arcades: Vec<Arcade> = query_as(
         "
@@ -42,7 +64,7 @@ WHERE SIMILARITY(name, $1) > 0.4
 }
 
 /// List all cabinets in an arcade `GET /arcades/{arcade_id}/cabinets`
-#[get("/{arcade_id}/cabinets")]
+#[get("{arcade_id}/cabinets")]
 async fn cabinets(
     arcade_id: web::Path<i32>,
     db_pool: web::Data<PgPool>,

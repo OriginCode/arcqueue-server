@@ -5,6 +5,8 @@ use clap::Parser;
 #[command(version, about)]
 pub struct Args {
     /// PostgreSQL Server URL
-    #[arg(short, long)]
+    #[arg(short = 'u', long)]
     pub pg_url: String,
+    #[arg(short, long)]
+    pub port: Option<u16>,
 }

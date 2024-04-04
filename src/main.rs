@@ -18,11 +18,12 @@ async fn main() -> Result<()> {
     env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
     env_logger::init();
 
+    let args = cli::Args::parse();
+
     // Set up database connection
-    let pg_url = cli::Args::parse().pg_url;
     let pool = PgPoolOptions::new()
         .max_connections(10)
-        .connect(&pg_url)
+        .connect(&args.pg_url)
         .await?;
 
     HttpServer::new(move || {
@@ -33,7 +34,7 @@ async fn main() -> Result<()> {
             .service(web::scope("/arcades").configure(arcades::arcades_config))
             .service(web::scope("/cabinets").configure(cabinets::cabinets_config))
     })
-    .bind(("0.0.0.0", 8701))?
+    .bind(("0.0.0.0", args.port.unwrap_or(8701)))?
     .run()
     .await?;
 
