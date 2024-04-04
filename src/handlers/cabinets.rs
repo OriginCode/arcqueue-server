@@ -37,7 +37,7 @@ SELECT * FROM arcqueue.cabinets
 WHERE id = $1
         ",
     )
-    .bind(&cabinet_id.into_inner())
+    .bind(cabinet_id.into_inner())
     .fetch_one(db_pool.get_ref())
     .await?;
 
@@ -56,7 +56,7 @@ SELECT * FROM arcqueue.players
 WHERE assoc_cabinet = $1
         ",
     )
-    .bind(&cabinet_id.into_inner())
+    .bind(cabinet_id.into_inner())
     .fetch_all(db_pool.get_ref())
     .await?;
 
@@ -105,7 +105,7 @@ ORDER BY position
 LIMIT $2
         ",
     )
-    .bind(&cabinet_id)
+    .bind(cabinet_id)
     .bind(next_n.n)
     .fetch_all(&mut *transaction)
     .await?;
@@ -118,7 +118,7 @@ WHERE assoc_cabinet = $1
 AND position < $2
         ",
     )
-    .bind(&cabinet_id)
+    .bind(cabinet_id)
     .bind(next_n.n)
     .execute(&mut *transaction)
     .await?;
@@ -132,7 +132,7 @@ WHERE assoc_cabinet = $2
         ",
     )
     .bind(next_n.n)
-    .bind(&cabinet_id)
+    .bind(cabinet_id)
     .execute(&mut *transaction)
     .await?;
 
@@ -160,7 +160,7 @@ AND assoc_cabinet = $2
         ",
     )
     .bind(&name.name)
-    .bind(&cabinet_id)
+    .bind(cabinet_id)
     .fetch_all(db_pool.get_ref())
     .await?;
 
@@ -177,7 +177,7 @@ WHERE assoc_cabinet = $2
         ",
     )
     .bind(&name.name)
-    .bind(&cabinet_id)
+    .bind(cabinet_id)
     .execute(db_pool.get_ref())
     .await?;
 
@@ -203,7 +203,7 @@ AND assoc_cabinet = $2
         ",
     )
     .bind(&name.name)
-    .bind(&cabinet_id)
+    .bind(cabinet_id)
     .fetch_all(db_pool.get_ref())
     .await?;
 
@@ -221,7 +221,7 @@ AND assoc_cabinet = $2
         ",
     )
     .bind(&name.name)
-    .bind(&cabinet_id)
+    .bind(cabinet_id)
     .fetch_one(&mut *transaction)
     .await?;
 
@@ -233,7 +233,7 @@ AND assoc_cabinet = $2
         ",
     )
     .bind(&name.name)
-    .bind(&cabinet_id)
+    .bind(cabinet_id)
     .execute(&mut *transaction)
     .await?;
 
@@ -246,7 +246,7 @@ AND assoc_cabinet = $2
         ",
     )
     .bind(original_position)
-    .bind(&cabinet_id)
+    .bind(cabinet_id)
     .execute(&mut *transaction)
     .await?;
 

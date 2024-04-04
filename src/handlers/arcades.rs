@@ -40,7 +40,7 @@ SELECT * FROM arcqueue.arcades
 WHERE id = $1
         ",
     )
-    .bind(&arcade_id.into_inner())
+    .bind(arcade_id.into_inner())
     .fetch_one(db_pool.get_ref())
     .await?;
 
@@ -75,7 +75,7 @@ SELECT * FROM arcqueue.cabinets
 WHERE assoc_arcade = $1
         ",
     )
-    .bind(&arcade_id.into_inner())
+    .bind(arcade_id.into_inner())
     .fetch_all(db_pool.get_ref())
     .await?;
 
