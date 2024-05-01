@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use sqlx::FromRow;
+use sqlx::{types::uuid::Uuid, FromRow};
 use time::Date;
 
 pub(crate) mod arcades;
@@ -7,7 +7,7 @@ pub(crate) mod cabinets;
 
 #[derive(Debug, Deserialize, Serialize, FromRow)]
 struct Arcade {
-    id: i32,
+    id: Uuid,
     name: String,
     description: Option<String>,
     create_date: Date,
@@ -15,15 +15,15 @@ struct Arcade {
 
 #[derive(Debug, Deserialize, Serialize, FromRow)]
 struct Cabinet {
-    id: i32,
+    id: Uuid,
     game_name: String,
     name: String,
-    assoc_arcade: i32,
+    assoc_arcade: Uuid,
 }
 
 #[derive(Debug, Deserialize, Serialize, FromRow)]
 struct Player {
     position: i32,
     name: String,
-    assoc_cabinet: i32,
+    assoc_cabinet: Uuid,
 }

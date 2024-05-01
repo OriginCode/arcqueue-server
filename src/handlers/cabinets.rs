@@ -1,6 +1,6 @@
 use actix_web::{get, post, web, HttpResponse};
 use serde::Deserialize;
-use sqlx::{query, query_as, PgPool};
+use sqlx::{query, query_as, types::Uuid, PgPool};
 
 use super::*;
 use crate::error::Error;
@@ -28,7 +28,7 @@ pub(crate) fn cabinets_config(cfg: &mut web::ServiceConfig) {
 /// Get the cabinet info with `cabinet_id` `GET /cabinets/{cabinet_id}`
 #[get("{cabinet_id}")]
 async fn cabinet(
-    cabinet_id: web::Path<i32>,
+    cabinet_id: web::Path<String>,
     db_pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, Error> {
     let cabinet: Cabinet = query_as(
@@ -37,7 +37,7 @@ SELECT * FROM arcqueue.cabinets
 WHERE id = $1
         ",
     )
-    .bind(cabinet_id.into_inner())
+    .bind(&Uuid::parse_str(&cabinet_id.into_inner())?)
     .fetch_one(db_pool.get_ref())
     .await?;
 
@@ -47,7 +47,7 @@ WHERE id = $1
 /// List all players in the queue of a cabinet `GET /cabinets/{cabinet_id}/players`
 #[get("{cabinet_id}/players")]
 async fn players(
-    cabinet_id: web::Path<i32>,
+    cabinet_id: web::Path<String>,
     db_pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, Error> {
     let players: Vec<Player> = query_as(
@@ -56,7 +56,7 @@ SELECT * FROM arcqueue.players
 WHERE assoc_cabinet = $1
         ",
     )
-    .bind(cabinet_id.into_inner())
+    .bind(&Uuid::parse_str(&cabinet_id.into_inner())?)
     .fetch_all(db_pool.get_ref())
     .await?;
 
@@ -66,7 +66,7 @@ WHERE assoc_cabinet = $1
 /// List upcoming N players in the queue `GET /cabinets/{cabinet_id}/upcoming?n=N`
 #[get("{cabinet_id}/upcoming")]
 async fn upcoming(
-    cabinet_id: web::Path<i32>,
+    cabinet_id: web::Path<String>,
     next_n: web::Query<NextN>,
     db_pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, Error> {
@@ -78,7 +78,7 @@ ORDER BY position
 LIMIT $2
         ",
     )
-    .bind(cabinet_id.into_inner())
+    .bind(&Uuid::parse_str(&cabinet_id.into_inner())?)
     .bind(next_n.n)
     .fetch_all(db_pool.get_ref())
     .await?;
@@ -90,11 +90,11 @@ LIMIT $2
 /// `POST /cabinets/{cabinet_id}/next - n=N`
 #[post("{cabinet_id}/next")]
 async fn next(
-    cabinet_id: web::Path<i32>,
+    cabinet_id: web::Path<String>,
     next_n: web::Form<NextN>,
     db_pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, Error> {
-    let cabinet_id = cabinet_id.into_inner();
+    let cabinet_id = Uuid::parse_str(&cabinet_id.into_inner())?;
     let mut transaction = db_pool.get_ref().begin().await?;
 
     let next: Vec<Player> = query_as(
@@ -145,11 +145,11 @@ WHERE assoc_cabinet = $2
 /// `POST /cabinets/{cabinet_id}/join - name=NAME`
 #[post("{cabinet_id}/join")]
 async fn join(
-    cabinet_id: web::Path<i32>,
+    cabinet_id: web::Path<String>,
     name: web::Form<Name>,
     db_pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, Error> {
-    let cabinet_id = cabinet_id.into_inner();
+    let cabinet_id = Uuid::parse_str(&cabinet_id.into_inner())?;
 
     // Bails if already in the queue
     let player: Vec<Player> = query_as(
@@ -188,11 +188,11 @@ WHERE assoc_cabinet = $2
 /// `POST /cabinets/{cabinet_id}/leave - name=NAME`
 #[post("{cabinet_id}/leave")]
 async fn leave(
-    cabinet_id: web::Path<i32>,
+    cabinet_id: web::Path<String>,
     name: web::Form<Name>,
     db_pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, Error> {
-    let cabinet_id = cabinet_id.into_inner();
+    let cabinet_id = Uuid::parse_str(&cabinet_id.into_inner())?;
 
     // Bails if not in the queue
     let player: Vec<Player> = query_as(

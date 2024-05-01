@@ -4,7 +4,7 @@ CREATE SCHEMA arcqueue;
 
 -- Arcades Table
 CREATE TABLE arcqueue.arcades (
-	id		int PRIMARY KEY,
+	id		uuid PRIMARY KEY,
 	name		text NOT NULL,
 	description	text,
 	create_date	date NOT NULL
@@ -12,17 +12,17 @@ CREATE TABLE arcqueue.arcades (
 
 -- Cabinets Table
 CREATE TABLE arcqueue.cabinets (
-	id		int PRIMARY KEY,
+	id		uuid PRIMARY KEY,
 	game_name	text NOT NULL,
 	name		text NOT NULL,
-	assoc_arcade	int REFERENCES arcqueue.arcades (id)
+	assoc_arcade	uuid REFERENCES arcqueue.arcades (id)
 );
 
 -- Players Table
 CREATE TABLE arcqueue.players (
 	position	int,
 	name		text NOT NULL,
-	assoc_cabinet	int REFERENCES arcqueue.cabinets (id),
+	assoc_cabinet	uuid REFERENCES arcqueue.cabinets (id),
 	UNIQUE (position, assoc_cabinet),
 	UNIQUE (name, assoc_cabinet)
 );

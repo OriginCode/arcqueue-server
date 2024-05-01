@@ -6,6 +6,8 @@ pub enum Error {
     InternalError(#[from] anyhow::Error),
     #[error("an database error occurred or resource not found")]
     DatabaseError(#[from] sqlx::Error),
+    #[error("failed to parse uuid: {0}")]
+    UuidParseError(#[from] sqlx::types::uuid::Error),
 }
 
 impl ResponseError for Error {
@@ -14,6 +16,7 @@ impl ResponseError for Error {
             Self::InternalError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::DatabaseError(sqlx::Error::RowNotFound) => StatusCode::NOT_FOUND,
             Self::DatabaseError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::UuidParseError(_) => StatusCode::BAD_REQUEST,
         }
     }
 
