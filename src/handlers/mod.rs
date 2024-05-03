@@ -4,6 +4,7 @@ use time::Date;
 
 pub(crate) mod arcades;
 pub(crate) mod cabinets;
+mod utils;
 
 #[derive(Debug, Deserialize, Serialize, FromRow)]
 struct Arcade {

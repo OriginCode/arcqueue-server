@@ -1,6 +1,6 @@
 use actix_web::{get, web, HttpResponse};
 use serde::Deserialize;
-use sqlx::{query_as, PgPool, types::Uuid};
+use sqlx::{query_as, types::Uuid, PgPool};
 
 use super::*;
 use crate::error::Error;
