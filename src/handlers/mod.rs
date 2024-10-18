@@ -15,6 +15,12 @@ struct Arcade {
 }
 
 #[derive(Debug, Deserialize, Serialize, FromRow)]
+struct Game {
+    name: String,
+    description: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, FromRow)]
 struct Cabinet {
     id: Uuid,
     game_name: String,

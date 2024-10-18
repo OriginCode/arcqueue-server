@@ -19,6 +19,7 @@ struct Name {
 /// `GET /cabinets/*` Routing
 pub(crate) fn cabinets_config(cfg: &mut web::ServiceConfig) {
     cfg.service(cabinet)
+        .service(info)
         .service(players)
         .service(upcoming)
         .service(next)
@@ -44,6 +45,27 @@ WHERE id = $1
     .await?;
 
     Ok(HttpResponse::Ok().json(cabinet))
+}
+
+/// Get cabinet game information `GET /cabinets/{cabinet_id}/info`
+#[get("{cabinet_id}/info")]
+async fn info(
+    cabinet_id: web::Path<String>,
+    db_pool: web::Data<PgPool>,
+) -> Result<HttpResponse, Error> {
+    let game: Game = query_as(
+        "
+SELECT g.name AS name, g.description AS description
+FROM arcqueue.games g, arcqueue.cabinets c
+WHERE g.name = c.game_name
+AND c.id = $1
+        ",
+    )
+    .bind(Uuid::parse_str(&cabinet_id.into_inner())?)
+    .fetch_one(db_pool.get_ref())
+    .await?;
+
+    Ok(HttpResponse::Ok().json(game))
 }
 
 /// List all players in the queue of a cabinet `GET /cabinets/{cabinet_id}/players`

@@ -4,25 +4,33 @@ CREATE SCHEMA arcqueue;
 
 -- Arcades Table
 CREATE TABLE arcqueue.arcades (
-	id		uuid PRIMARY KEY,
+	id		    uuid PRIMARY KEY,
 	name		text NOT NULL,
 	description	text,
 	create_date	date NOT NULL
 );
 
+-- Games Table
+CREATE TABLE arcqueue.games (
+    name        text PRIMARY KEY,
+    description text
+);
+
 -- Cabinets Table
 CREATE TABLE arcqueue.cabinets (
-	id		uuid PRIMARY KEY,
-	game_name	text NOT NULL,
-	name		text NOT NULL,
+	id	         	uuid PRIMARY KEY,
+	game_name     	text REFERENCES arcqueue.games (name),
+	name	    	text NOT NULL,
 	assoc_arcade	uuid REFERENCES arcqueue.arcades (id)
+                    ON DELETE CASCADE
 );
 
 -- Players Table
 CREATE TABLE arcqueue.players (
-	position	int NOT NULL,
-	name		text NOT NULL,
-	assoc_cabinet	uuid REFERENCES arcqueue.cabinets (id),
+	position	    int NOT NULL,
+	name		    text NOT NULL,
+	assoc_cabinet	uuid REFERENCES arcqueue.cabinets (id)
+                    ON DELETE CASCADE,
 	UNIQUE (position, assoc_cabinet),
 	UNIQUE (name, assoc_cabinet)
 );
