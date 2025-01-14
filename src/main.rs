@@ -34,7 +34,10 @@ async fn main() -> Result<()> {
             .service(web::scope("/arcades").configure(arcades::arcades_config))
             .service(web::scope("/cabinets").configure(cabinets::cabinets_config))
     })
-    .bind(("0.0.0.0", args.port.unwrap_or(8701)))?
+    .bind((
+        args.host.unwrap_or("localhost".to_owned()),
+        args.port.unwrap_or(8701),
+    ))?
     .run()
     .await?;
 
