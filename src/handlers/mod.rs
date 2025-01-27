@@ -1,36 +1,10 @@
-use serde::{Deserialize, Serialize};
-use sqlx::{types::uuid::Uuid, FromRow};
-use time::Date;
+use actix_web::web;
 
-pub(crate) mod arcades;
-pub(crate) mod cabinets;
-mod utils;
+mod v1;
+use v1::*;
 
-#[derive(Debug, Deserialize, Serialize, FromRow)]
-struct Arcade {
-    id: Uuid,
-    name: String,
-    description: Option<String>,
-    create_date: Date,
-}
-
-#[derive(Debug, Deserialize, Serialize, FromRow)]
-struct Game {
-    name: String,
-    description: Option<String>,
-}
-
-#[derive(Debug, Deserialize, Serialize, FromRow)]
-struct Cabinet {
-    id: Uuid,
-    game_name: String,
-    name: String,
-    assoc_arcade: Uuid,
-}
-
-#[derive(Debug, Deserialize, Serialize, FromRow)]
-struct Player {
-    position: i32,
-    name: String,
-    assoc_cabinet: Uuid,
+/// `GET /arcades/*` Routing
+pub(crate) fn apiv1_config(cfg: &mut web::ServiceConfig) {
+    cfg.service(web::scope("/arcades").configure(arcades::arcades_config))
+        .service(web::scope("/cabinets").configure(cabinets::cabinets_config));
 }

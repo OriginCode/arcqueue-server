@@ -11,8 +11,6 @@ mod ping;
 // Routing
 mod handlers;
 
-use handlers::*;
-
 #[actix_web::main]
 async fn main() -> Result<()> {
     env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
@@ -31,8 +29,7 @@ async fn main() -> Result<()> {
             .wrap(middleware::Logger::default())
             .app_data(web::Data::new(pool.clone()))
             .service(ping::ping)
-            .service(web::scope("/arcades").configure(arcades::arcades_config))
-            .service(web::scope("/cabinets").configure(cabinets::cabinets_config))
+            .service(web::scope("/v1").configure(handlers::apiv1_config))
     })
     .bind((
         args.host.unwrap_or("localhost".to_owned()),

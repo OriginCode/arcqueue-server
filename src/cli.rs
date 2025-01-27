@@ -9,6 +9,6 @@ pub struct Args {
     pub pg_url: String,
     #[arg(short, long)]
     pub port: Option<u16>,
-    #[arg(short, long)]
+    #[arg(short = 'l', long)]
     pub host: Option<String>,
 }
