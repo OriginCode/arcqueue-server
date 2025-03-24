@@ -181,7 +181,7 @@ WHERE assoc_cabinet = $2
 #[post("{cabinet_id}/join")]
 async fn join(
     cabinet_id: web::Path<String>,
-    name: web::Form<Name>,
+    name: web::Json<Name>,
     db_pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, Error> {
     let cabinet_id = Uuid::parse_str(&cabinet_id.into_inner())?;
