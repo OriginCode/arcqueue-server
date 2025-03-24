@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 use actix_web::{middleware, web, App, HttpServer};
 use anyhow::Result;
 use clap::Parser;
@@ -25,8 +26,10 @@ async fn main() -> Result<()> {
         .await?;
 
     HttpServer::new(move || {
+        let cors = Cors::default().allow_any_origin().send_wildcard();
         App::new()
             .wrap(middleware::Logger::default())
+            .wrap(cors)
             .app_data(web::Data::new(pool.clone()))
             .service(ping::ping)
             .service(web::scope("/v1").configure(handlers::apiv1_config))
