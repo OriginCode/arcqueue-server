@@ -8,6 +8,7 @@ use std::env;
 mod cli;
 mod error;
 mod ping;
+mod response;
 
 // Routing
 mod handlers;

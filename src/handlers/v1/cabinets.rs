@@ -3,7 +3,7 @@ use serde::Deserialize;
 use sqlx::{query, query_as, types::Uuid, PgPool};
 
 use super::*;
-use crate::error::Error;
+use crate::{error::Error, response::Response};
 use utils::is_name_in_queue;
 
 #[derive(Debug, Deserialize)]
@@ -44,7 +44,7 @@ WHERE id = $1
     .fetch_one(db_pool.get_ref())
     .await?;
 
-    Ok(HttpResponse::Ok().json(cabinet))
+    Ok(HttpResponse::Ok().json(Response::success(cabinet)))
 }
 
 /// Get cabinet game information `GET /cabinets/{cabinet_id}/info`
@@ -65,7 +65,7 @@ AND c.id = $1
     .fetch_one(db_pool.get_ref())
     .await?;
 
-    Ok(HttpResponse::Ok().json(game))
+    Ok(HttpResponse::Ok().json(Response::success(game)))
 }
 
 /// List all players in the queue of a cabinet `GET /cabinets/{cabinet_id}/players`
@@ -85,7 +85,7 @@ ORDER BY position
     .fetch_all(db_pool.get_ref())
     .await?;
 
-    Ok(HttpResponse::Ok().json(players))
+    Ok(HttpResponse::Ok().json(Response::success(players)))
 }
 
 /// List upcoming N players in the queue `GET /cabinets/{cabinet_id}/upcoming?n=N`
@@ -113,7 +113,7 @@ LIMIT $2
     .fetch_all(db_pool.get_ref())
     .await?;
 
-    Ok(HttpResponse::Ok().json(upcoming))
+    Ok(HttpResponse::Ok().json(Response::success(upcoming)))
 }
 
 /// List upcoming N players in the queue, and remove them from the queue
@@ -173,7 +173,7 @@ WHERE assoc_cabinet = $2
 
     transaction.commit().await?;
 
-    Ok(HttpResponse::Ok().json(next))
+    Ok(HttpResponse::Ok().json(Response::success(next)))
 }
 
 /// Join the queue of `cabinet_id` with a name
@@ -204,7 +204,7 @@ WHERE assoc_cabinet = $2
     .execute(db_pool.get_ref())
     .await?;
 
-    Ok(HttpResponse::Ok().body("Ok"))
+    Ok(HttpResponse::Ok().json(Response::<()>::default()))
 }
 
 /// Leave the queue of `cabinet_id` with a name
@@ -263,7 +263,7 @@ AND assoc_cabinet = $2
 
     transaction.commit().await?;
 
-    Ok(HttpResponse::Ok().body("Ok"))
+    Ok(HttpResponse::Ok().json(Response::<()>::default()))
 }
 
 /// Swap the position with next one in the queue of `cabinet_id` with a name
@@ -354,5 +354,5 @@ VALUES ($1, $2, $3)
 
     transaction.commit().await?;
 
-    Ok(HttpResponse::Ok().body("Ok"))
+    Ok(HttpResponse::Ok().json(Response::<()>::default()))
 }

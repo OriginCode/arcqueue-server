@@ -3,7 +3,7 @@ use serde::Deserialize;
 use sqlx::{query_as, types::Uuid, PgPool};
 
 use super::*;
-use crate::error::Error;
+use crate::{error::Error, response::Response};
 
 #[derive(Debug, Deserialize)]
 struct Name {
@@ -13,8 +13,8 @@ struct Name {
 /// `GET /arcades/*` Routing
 pub(crate) fn arcades_config(cfg: &mut web::ServiceConfig) {
     cfg.service(all)
-        .service(arcade)
         .service(search)
+        .service(arcade)
         .service(cabinets);
 }
 
@@ -25,7 +25,23 @@ async fn all(db_pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
         .fetch_all(db_pool.get_ref())
         .await?;
 
-    Ok(HttpResponse::Ok().json(arcades))
+    Ok(HttpResponse::Ok().json(Response::success(arcades)))
+}
+
+/// Search for arcades by name `GET /arcades/search?name=NAME`
+#[get("search")]
+async fn search(name: web::Query<Name>, db_pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
+    let arcades: Vec<Arcade> = query_as(
+        "
+SELECT * FROM arcqueue.arcades
+WHERE SIMILARITY(name, $1) > 0.4
+        ",
+    )
+    .bind(&name.name)
+    .fetch_all(db_pool.get_ref())
+    .await?;
+
+    Ok(HttpResponse::Ok().json(Response::success(arcades)))
 }
 
 /// Get arcade info with `arcade_id` `GET /arcades/{arcade_id}`
@@ -44,23 +60,7 @@ WHERE id = $1
     .fetch_one(db_pool.get_ref())
     .await?;
 
-    Ok(HttpResponse::Ok().json(arcade))
-}
-
-/// Search for arcades by name `GET /arcades/search?name=NAME`
-#[get("search")]
-async fn search(name: web::Query<Name>, db_pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
-    let arcades: Vec<Arcade> = query_as(
-        "
-SELECT * FROM arcqueue.arcades
-WHERE SIMILARITY(name, $1) > 0.4
-        ",
-    )
-    .bind(&name.name)
-    .fetch_all(db_pool.get_ref())
-    .await?;
-
-    Ok(HttpResponse::Ok().json(arcades))
+    Ok(HttpResponse::Ok().json(Response::success(arcade)))
 }
 
 /// List all cabinets in an arcade `GET /arcades/{arcade_id}/cabinets`
@@ -79,5 +79,5 @@ WHERE assoc_arcade = $1
     .fetch_all(db_pool.get_ref())
     .await?;
 
-    Ok(HttpResponse::Ok().json(cabinets))
+    Ok(HttpResponse::Ok().json(Response::success(cabinets)))
 }

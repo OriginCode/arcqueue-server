@@ -1,5 +1,7 @@
 use actix_web::{http::StatusCode, HttpResponse, ResponseError};
 
+use crate::response::Response;
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("an unspecified internal error occurred: {0}")]
@@ -33,6 +35,6 @@ impl ResponseError for Error {
     }
 
     fn error_response(&self) -> HttpResponse {
-        HttpResponse::build(self.status_code()).body(self.to_string())
+        HttpResponse::build(self.status_code()).json(Response::<()>::error(self.to_string()))
     }
 }
