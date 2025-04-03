@@ -7,7 +7,8 @@ CREATE TABLE arcqueue.arcades (
 	id		    uuid PRIMARY KEY,
 	name		text NOT NULL,
 	description	text,
-	create_date	date NOT NULL
+	create_date	date NOT NULL,
+	is_public	boolean NOT NULL
 );
 
 -- Games Table

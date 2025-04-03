@@ -21,7 +21,7 @@ pub(crate) fn arcades_config(cfg: &mut web::ServiceConfig) {
 /// Search for all arcades `GET /arcades`
 #[get("")]
 async fn all(db_pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
-    let arcades: Vec<Arcade> = query_as("SELECT * FROM arcqueue.arcades")
+    let arcades: Vec<Arcade> = query_as("SELECT * FROM arcqueue.arcades WHERE is_public = true")
         .fetch_all(db_pool.get_ref())
         .await?;
 
@@ -35,6 +35,7 @@ async fn search(name: web::Query<Name>, db_pool: web::Data<PgPool>) -> Result<Ht
         "
 SELECT * FROM arcqueue.arcades
 WHERE SIMILARITY(name, $1) > 0.4
+AND is_public = true
         ",
     )
     .bind(&name.name)
