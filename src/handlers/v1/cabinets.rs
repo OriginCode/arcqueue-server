@@ -1,4 +1,4 @@
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{delete, get, post, web, HttpResponse};
 use serde::Deserialize;
 use sqlx::{query, query_as, types::Uuid, PgPool};
 
@@ -208,11 +208,11 @@ WHERE assoc_cabinet = $2
 }
 
 /// Leave the queue of `cabinet_id` with a name
-/// `POST /cabinets/{cabinet_id}/leave - name=NAME`
-#[post("{cabinet_id}/leave")]
+/// `DELETE /cabinets/{cabinet_id}/leave - name=NAME`
+#[delete("{cabinet_id}/leave")]
 async fn leave(
     cabinet_id: web::Path<String>,
-    name: web::Form<Name>,
+    name: web::Json<Name>,
     db_pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, Error> {
     let cabinet_id = Uuid::parse_str(&cabinet_id.into_inner())?;
@@ -271,7 +271,7 @@ AND assoc_cabinet = $2
 #[post("{cabinet_id}/postpone")]
 async fn postpone(
     cabinet_id: web::Path<String>,
-    name: web::Form<Name>,
+    name: web::Json<Name>,
     db_pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, Error> {
     let cabinet_id = Uuid::parse_str(&cabinet_id.into_inner())?;

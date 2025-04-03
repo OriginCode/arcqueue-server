@@ -27,7 +27,13 @@ async fn main() -> Result<()> {
         .await?;
 
     HttpServer::new(move || {
-        let cors = Cors::default().allow_any_origin().send_wildcard();
+        // For test only
+        let cors = Cors::default()
+            .allow_any_origin()
+            .send_wildcard()
+            .allow_any_header()
+            .allow_any_method()
+            .expose_any_header();
         App::new()
             .wrap(middleware::Logger::default())
             .wrap(cors)
